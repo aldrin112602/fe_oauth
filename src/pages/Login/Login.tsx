@@ -20,6 +20,15 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
     document.title = pageTitle;
   }, [pageTitle]);
 
+
+  // get code
+  React.useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (code) {
+      // localStorage.setItem('')
+    }
+  }, []);
+
   // const [rerender, setRerender] = React.useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,9 +41,10 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
     onSubmit(formData);
   };
 
-  const signinWithGoogle = () => {
-    alert();
+  const signinWithGithub = () => {
+    window.open(`https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}`, '_self');
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col p-5">
       <form
@@ -81,20 +91,20 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
           </button>
         </div>
         <div className="border my-4 border-1"></div>
-        <div className="text-center my-3">Sign In with</div>
+        <div className="text-center my-3">Or</div>
         <button
           type="button"
           className="block w-full rounded-md border-0 py-1.5 px-5 text-slate-100 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-indigo-600 focus:ring-indigo-500 sm:text-sm sm:leading-6"
         >
-          Facebook
+          Signin with Facebook
         </button>
 
         <button
           type="button"
-          onClick={signinWithGoogle}
+          onClick={signinWithGithub}
           className="block w-full rounded-md border-0 py-1.5 px-5 text-black mt-2 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-slate-100 focus:ring-indigo-500 sm:text-sm sm:leading-6"
         >
-          Google
+          Signin with Github
         </button>
 
         <div className="border my-4 border-1"></div>
