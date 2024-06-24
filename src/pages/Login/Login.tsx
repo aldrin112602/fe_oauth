@@ -20,13 +20,26 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
     document.title = pageTitle;
   }, [pageTitle]);
 
-
+  localStorage.clear();
   // get code
   React.useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
-    if (code) {
-      // localStorage.setItem('')
+    if (code && !localStorage.getItem("githubCode")) {
+      localStorage.setItem("githubCode", String(code));
     }
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/oauth/github?code=${code}`)
+      .then((res) => res.json())
+      .then(data => {
+        const { token, userData} = data;
+        localStorage.setItem('github_access_token', token);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.removeItem('githubCode')
+        console.log(data)
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   // const [rerender, setRerender] = React.useState(false);
@@ -42,7 +55,12 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
   };
 
   const signinWithGithub = () => {
-    window.open(`https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}`, '_self');
+    window.open(
+      `https://github.com/login/oauth/authorize?client_id=${
+        import.meta.env.VITE_GITHUB_CLIENT_ID
+      }`,
+      "_self"
+    );
   };
 
   return (
