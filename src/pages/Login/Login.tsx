@@ -20,7 +20,6 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
     document.title = pageTitle;
   }, [pageTitle]);
 
-  localStorage.clear();
   // get code
   React.useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
@@ -30,15 +29,16 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
 
     fetch(`${import.meta.env.VITE_API_BASE_URL}/oauth/github?code=${code}`)
       .then((res) => res.json())
-      .then(data => {
-        const { token, userData} = data;
-        localStorage.setItem('github_access_token', token);
-        localStorage.setItem('userData', JSON.stringify(userData));
-        localStorage.removeItem('githubCode')
-        console.log(data)
+      .then((data) => {
+        const { token, userData } = data;
+        localStorage.setItem("github_access_token", token);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        localStorage.removeItem("githubCode");
+        console.log(data);
       })
       .catch((err) => {
         console.error(err);
+        localStorage.removeItem("githubCode");
       });
   }, []);
 
