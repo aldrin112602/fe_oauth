@@ -15,9 +15,9 @@ const Navbar = ({ isAuth }: FormProps) => {
           {/* if user is not Auth */}
           {!userToken && (
             <>
-              <li>
+              {/* <li>
                 <Link style={{ fontWeight: '300' }} className="hover:text-red-600 hover:underline" to="/">Login</Link>
-              </li>
+              </li> */}
               
             </>
           )}

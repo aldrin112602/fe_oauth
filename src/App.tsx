@@ -7,13 +7,13 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
-const apiBaseUrl = import.meta.env.API_BASE_URL || "http://localhost:3000";
+const apiBaseUrl = import.meta.env.API_BASE_URL || "http://localhost:3002";
 
 const App = () => {
   // handle login
   const handleLogin = (data: { username: string; password: string }) => {
     axios
-      .post(`${apiBaseUrl}/api/user/signIn`, data)
+      .post(`${apiBaseUrl}/login`, data)
       .then((res) => {
         const { data } = res,
           { message } = data;
@@ -51,7 +51,7 @@ const App = () => {
         <Routes>
           {!checkAuthUser() && (
             <>
-              <Route path="/" element={<Login onSubmit={handleLogin} />} />
+              <Route path="/" element={<Login onSubmit={handleLogin} pageTitle="Sign In" />} />
             </>
           )}
 

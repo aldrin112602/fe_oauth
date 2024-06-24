@@ -2,6 +2,7 @@ import React from "react";
 
 interface FormProps {
   onSubmit: (data: FormData) => void;
+  pageTitle: string;
 }
 
 interface FormData {
@@ -9,11 +10,17 @@ interface FormData {
   password: string;
 }
 
-const Login = ({ onSubmit }: FormProps) => {
+const Login = ({ onSubmit, pageTitle }: FormProps) => {
   const [formData, setFormData] = React.useState<FormData>({
     username: "",
     password: "",
   });
+
+  React.useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
+
+  // const [rerender, setRerender] = React.useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -24,14 +31,12 @@ const Login = ({ onSubmit }: FormProps) => {
     event.preventDefault();
     onSubmit(formData);
   };
+
+  const signinWithGoogle = () => {
+    alert();
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col p-5">
-      {/* <img
-        style={{ filter: "hue-rotate(150deg)", marginTop: "-2rem" }}
-        src="/wechat-logo.webp"
-        alt="Wechat logo"
-        className="hidden w-32 lg:block md:block"
-      /> */}
       <form
         onSubmit={handleSubmit}
         className="shadow-lg px-10 py-6 bg-white w-full md:w-1/3 lg:w-1/3 rounded-md"
@@ -86,6 +91,7 @@ const Login = ({ onSubmit }: FormProps) => {
 
         <button
           type="button"
+          onClick={signinWithGoogle}
           className="block w-full rounded-md border-0 py-1.5 px-5 text-black mt-2 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-slate-100 focus:ring-indigo-500 sm:text-sm sm:leading-6"
         >
           Google
