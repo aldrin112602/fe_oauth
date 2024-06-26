@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import Swal from "sweetalert2";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+const apiBaseUrl = import.meta.env.API_BASE_URL || "http://localhost:3002";
 
 interface FormProps {
-  onSubmit: (data: FormData) => void;
   pageTitle: string;
 }
 
@@ -10,55 +14,61 @@ interface FormData {
   password: string;
 }
 
-const Login = ({ onSubmit, pageTitle }: FormProps) => {
-  const [formData, setFormData] = React.useState<FormData>({
+const Login = ({ pageTitle }: FormProps) => {
+  document.title = pageTitle as string;
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
   });
-
-  React.useEffect(() => {
-    document.title = pageTitle;
-  }, [pageTitle]);
-
-  // get code
-  React.useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("code");
-    if (code && !localStorage.getItem("githubCode")) {
-      localStorage.setItem("githubCode", String(code));
-    }
-
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/oauth/github?code=${code}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const { token, userData } = data;
-        localStorage.setItem("github_access_token", token);
-        localStorage.setItem("userData", JSON.stringify(userData));
-        localStorage.removeItem("githubCode");
-        console.log(data);
-      })
-      .catch((err) => {
-        console.error(err);
-        localStorage.removeItem("githubCode");
-      });
-  }, []);
-
-  // const [rerender, setRerender] = React.useState(false);
+  const [buttonClick, setButtonClick] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleLogin = (data: FormData) => {
+    setButtonClick(true);
+    axios
+      .post(`${apiBaseUrl}/login`, data)
+      .then((res) => {
+        const { data } = res;
+        const { message, user } = data;
+        const token = user._id;
+        Swal.fire({
+          title: "Success!",
+          text: message,
+          icon: "success",
+        });
+        Cookies.set("userToken", token, { expires: 7, path: "/", secure: true });
+        window.location.reload();
+      })
+      .catch((err) => {
+        const { response } = err;
+        let errorMessage = "Authentication failed!";
+        if (response && response.data && response.data.message) {
+          errorMessage = response.data.message;
+        }
+        Swal.fire({
+          title: "Authentication failed!",
+          text: errorMessage,
+          icon: "error",
+        });
+      })
+      .finally(() => {
+        setButtonClick(false);
+      });
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit(formData);
+    handleLogin(formData);
   };
 
   const signinWithGithub = () => {
+    const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
     window.open(
-      `https://github.com/login/oauth/authorize?client_id=${
-        import.meta.env.VITE_GITHUB_CLIENT_ID
-      }`,
+      `https://github.com/login/oauth/authorize?client_id=${githubClientId}`,
       "_self"
     );
   };
@@ -104,13 +114,17 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
           </a>
         </div>
         <div className="mt-2">
-          <button className="block w-full rounded-md border-0 py-1.5 px-5 text-slate-100 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-indigo-900 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+          <button
+            disabled={buttonClick}
+            className="block w-full rounded-md border-0 py-1.5 px-5 text-slate-100 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-indigo-900 focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          >
             Login
           </button>
         </div>
         <div className="border my-4 border-1"></div>
         <div className="text-center my-3">Or</div>
         <button
+          disabled={buttonClick}
           type="button"
           className="block w-full rounded-md border-0 py-1.5 px-5 text-slate-100 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-indigo-600 focus:ring-indigo-500 sm:text-sm sm:leading-6"
         >
@@ -118,6 +132,7 @@ const Login = ({ onSubmit, pageTitle }: FormProps) => {
         </button>
 
         <button
+          disabled={buttonClick}
           type="button"
           onClick={signinWithGithub}
           className="block w-full rounded-md border-0 py-1.5 px-5 text-black mt-2 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset bg-slate-100 focus:ring-indigo-500 sm:text-sm sm:leading-6"
